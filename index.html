@@ -1,0 +1,948 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>你是什么小狗？🐶 DOGTI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#FFF8F0;color:#5D4037;min-height:100vh;overflow-x:hidden}
+.ctn{max-width:420px;margin:0 auto;padding:20px 16px;min-height:100vh}
+.page{display:none}.page.active{display:block;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.6)}80%{transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+
+.p-start{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:40px;text-align:center}
+.s-dog{width:180px;height:180px;margin-bottom:16px;animation:bounce 2s ease-in-out infinite}
+.s-title{font-size:28px;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,#FF8A5C,#FF6B9D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.s-sub{font-size:15px;color:#8D6E63;margin-bottom:20px;line-height:1.6}
+
+.nick-box{width:100%;max-width:280px;margin-bottom:24px}
+.nick-input{width:100%;padding:12px 18px;border:2px solid #F0E6DE;border-radius:50px;font-size:15px;text-align:center;outline:none;font-family:inherit;color:#5D4037;background:#fff;transition:border-color .2s}
+.nick-input:focus{border-color:#FF8A5C}
+.nick-input::placeholder{color:#C0A898}
+
+.btn-go{background:linear-gradient(135deg,#FF8A5C,#FF6B9D);color:#fff;border:none;padding:15px 44px;border-radius:50px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,157,.3);letter-spacing:2px;font-family:inherit;margin-bottom:16px}
+.btn-go:active{transform:scale(.95)}
+.btn-go:disabled{opacity:.5;cursor:not-allowed}
+
+.btn-rank{background:none;border:2px solid #FF8A5C;color:#FF8A5C;padding:10px 28px;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-rank:active{transform:scale(.95)}
+
+.prog{width:100%;height:5px;background:#F0E6DE;border-radius:3px;margin-bottom:20px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#FF8A5C,#FF6B9D);border-radius:3px;transition:width .35s;width:0}
+.q-num{font-size:13px;color:#8D6E63;margin-bottom:6px}
+.q-scene{font-size:14px;color:#A08070;margin-bottom:10px;font-style:italic}
+.q-text{font-size:19px;font-weight:700;line-height:1.5;margin-bottom:22px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:#fff;border:2px solid #F0E6DE;border-radius:14px;padding:14px 18px;font-size:14px;line-height:1.5;text-align:left;cursor:pointer;transition:all .2s;color:#5D4037;font-family:inherit}
+.opt:active{border-color:#FF8A5C;background:#FFD4B8;transform:scale(.97)}
+
+.r-card{background:#fff;border-radius:22px;padding:28px 18px;box-shadow:0 8px 28px rgba(255,138,92,.13);text-align:center;position:relative;overflow:hidden}
+.r-card::before{content:'';position:absolute;top:0;left:0;right:0;height:90px;background:linear-gradient(135deg,#FF8A5C18,#FF6B9D18)}
+.r-tag{display:inline-block;background:linear-gradient(135deg,#FF8A5C,#FF6B9D);color:#fff;padding:5px 18px;border-radius:18px;font-size:12px;font-weight:600;margin-bottom:14px;position:relative;z-index:1}
+.r-dog{width:150px;height:150px;margin:0 auto 10px;position:relative;z-index:1;animation:popIn .6s ease}
+.r-name{font-size:22px;font-weight:800;margin-bottom:2px;position:relative;z-index:1}
+.r-code{font-size:13px;color:#8D6E63;margin-bottom:14px;letter-spacing:3px;font-weight:600}
+.r-desc{font-size:14px;line-height:1.7;margin-bottom:14px;padding:0 4px;position:relative;z-index:1}
+.r-quote{font-size:13px;color:#FF8A5C;font-style:italic;margin-bottom:18px;padding:10px 14px;background:#FFF5F0;border-radius:10px;border-left:3px solid #FF8A5C;text-align:left}
+.stats{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;text-align:left}
+.st-r{display:flex;align-items:center;gap:6px}
+.st-l{font-size:11px;width:48px;flex-shrink:0;color:#8D6E63}
+.st-bar{flex:1;height:7px;background:#F0E6DE;border-radius:4px;overflow:hidden}
+.st-f{height:100%;border-radius:4px;transition:width 1s ease}
+.rels{display:flex;gap:8px;margin-bottom:18px}
+.rel{flex:1;background:#FFF8F0;border-radius:10px;padding:8px 4px;text-align:center}
+.rel-lb{font-size:10px;color:#8D6E63;margin-bottom:2px}
+.rel-nm{font-size:11px;font-weight:700}
+.rel-em{font-size:18px}
+.r-rarity{font-size:12px;color:#8D6E63;margin-bottom:18px}
+.r-rarity b{color:#FF8A5C}
+.btn-g{display:flex;gap:10px;flex-wrap:wrap}
+.btn-a,.btn-b,.btn-c{flex:1;padding:12px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;min-width:100px}
+.btn-a{background:#F0E6DE;color:#5D4037}
+.btn-b{background:linear-gradient(135deg,#FF8A5C,#FF6B9D);color:#fff;box-shadow:0 4px 12px rgba(255,107,157,.25)}
+.btn-c{background:none;border:2px solid #FF8A5C;color:#FF8A5C;flex:1 1 100%;margin-top:4px}
+.btn-a:active,.btn-b:active,.btn-c:active{transform:scale(.95)}
+
+.share-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.share-mask img{max-width:92%;max-height:70vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.share-tip{color:#fff;font-size:14px;margin-top:14px;text-align:center;line-height:1.6}
+.share-close{background:#fff;color:#5D4037;border:none;padding:10px 32px;border-radius:50px;font-size:14px;font-weight:700;margin-top:14px;cursor:pointer;font-family:inherit}
+
+/* Rank page */
+.rank-title{font-size:22px;font-weight:800;margin-bottom:4px;text-align:center}
+.rank-sub{font-size:13px;color:#8D6E63;margin-bottom:18px;text-align:center}
+.rank-tabs{display:flex;gap:8px;margin-bottom:16px}
+.rank-tab{flex:1;padding:8px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #F0E6DE;background:#fff;color:#8D6E63;text-align:center;font-family:inherit}
+.rank-tab.active{border-color:#FF8A5C;background:#FFF5F0;color:#FF8A5C}
+.rank-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.rank-item{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.rank-item .ri-dog{width:40px;height:40px;flex-shrink:0}
+.rank-item .ri-info{flex:1;text-align:left}
+.rank-item .ri-nick{font-size:14px;font-weight:700}
+.rank-item .ri-type{font-size:11px;color:#8D6E63}
+.rank-item .ri-time{font-size:10px;color:#BBAA99}
+.rank-stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.rank-stat{flex:1 1 45%;background:#fff;border-radius:14px;padding:12px 8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.rank-stat .rs-dog{width:36px;height:36px;margin:0 auto 4px}
+.rank-stat .rs-name{font-size:11px;font-weight:700;margin-bottom:2px}
+.rank-stat .rs-count{font-size:18px;font-weight:800;color:#FF8A5C}
+.rank-stat .rs-pct{font-size:10px;color:#8D6E63}
+.rank-empty{text-align:center;color:#BBAA99;padding:40px 0;font-size:14px}
+.btn-back{display:block;width:100%;padding:12px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:#F0E6DE;color:#5D4037;font-family:inherit}
+.btn-back:active{transform:scale(.95)}
+.rank-loading{text-align:center;padding:40px 0;color:#8D6E63}
+
+.paw-bg{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden}
+.paw-bg i{position:absolute;font-style:normal;font-size:18px;opacity:.05;animation:fp 20s linear infinite}
+@keyframes fp{0%{transform:translateY(100vh) rotate(0deg)}100%{transform:translateY(-60px) rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="paw-bg" id="pawBg"></div>
+<div class="ctn">
+  <div class="page active p-start" id="pgStart">
+    <div class="s-dog" id="sDog"></div>
+    <div class="s-title">你是什么小狗？</div>
+    <div class="s-sub">回答 12 个灵魂拷问<br>找到你的专属狗格 🐾</div>
+    <div class="nick-box">
+      <input class="nick-input" id="nickInput" type="text" placeholder="输入你的昵称" maxlength="12">
+    </div>
+    <button class="btn-go" id="btnGo" onclick="go()" disabled>开始测试 🐶</button>
+    <button class="btn-rank" onclick="showRank()">📊 查看排行榜</button>
+  </div>
+  <div class="page" id="pgQuiz">
+    <div class="prog"><div class="prog-fill" id="pf"></div></div>
+    <div class="q-num" id="qn"></div>
+    <div class="q-scene" id="qs"></div>
+    <div class="q-text" id="qt"></div>
+    <div class="opts" id="op"></div>
+  </div>
+  <div class="page" id="pgResult">
+    <div class="r-card" id="rc"></div>
+  </div>
+  <div class="page" id="pgRank">
+    <div class="rank-title">🐶 狗格排行榜</div>
+    <div class="rank-sub">看看大家都是什么小狗</div>
+    <div class="rank-tabs">
+      <div class="rank-tab active" onclick="switchTab('list',this)">🏆 最近测试</div>
+      <div class="rank-tab" onclick="switchTab('stats',this)">📊 狗格统计</div>
+    </div>
+    <div id="rankContent"></div>
+    <button class="btn-back" onclick="show('pgStart')">← 返回首页</button>
+  </div>
+</div>
+<script>// === SVG Dog Drawing System ===
+// Style: round, cute, white chubby puppy style (matching reference image)
+
+const CC = {
+  white:  {b:'#F5F0EB',s:'#E8E0D8',n:'#3A3A3A',t:'#FF8A8A',ck:'#FFB8B8',e:'#E0D5CC',p:'#FFD4D4',pp:'#222'},
+  cream:  {b:'#FFF3D6',s:'#F0DFB8',n:'#5D4037',t:'#FF8A8A',ck:'#FFD0A0',e:'#F0DFB8',p:'#FFD4D4',pp:'#222'},
+  orange: {b:'#FFD4A8',s:'#F0BA80',n:'#5D4037',t:'#FF8A8A',ck:'#FFB088',e:'#E8A870',p:'#FFD4D4',pp:'#222'},
+  brown:  {b:'#C4956A',s:'#A67C52',n:'#3A2A1A',t:'#FF8A8A',ck:'#D4A478',e:'#8B6342',p:'#E8C0A0',pp:'#1A1A1A'},
+  gray:   {b:'#C8C0B8',s:'#A8A098',n:'#3A3A3A',t:'#FF8A8A',ck:'#D8C0B8',e:'#9A928A',p:'#E0D0D0',pp:'#222'},
+  black:  {b:'#555',s:'#3A3A3A',n:'#222',t:'#FF7070',ck:'#777',e:'#3A3A3A',p:'#D0C0C0',pp:'#111'},
+  husky:  {b:'#D8D8D8',s:'#B0B0B0',n:'#333',t:'#FF8A8A',ck:'#C8C0C0',e:'#666',p:'#E8D8D8',pp:'#4A90D9'},
+  golden: {b:'#F0C878',s:'#D4A850',n:'#5D4037',t:'#FF8A8A',ck:'#F0D898',e:'#D4A040',p:'#FFD8C0',pp:'#3A2A1A'}
+};
+
+function dSVG(ck, ex, ac, sz) {
+  sz = sz || 160;
+  const c = CC[ck] || CC.white;
+  const cx = sz/2, cy = sz/2, r = sz * 0.32;
+  const ey = cy - r * 0.12, es = r * 0.33;
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sz} ${sz}" width="${sz}" height="${sz}">`;
+
+  // Tail
+  o += `<path d="M${cx+r*.6} ${cy+r*.5} Q${cx+r*1.3} ${cy-r*.1} ${cx+r*1.1} ${cy-r*.5}" stroke="${c.s}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+
+  // Body (round ellipse)
+  o += `<ellipse cx="${cx}" cy="${cy+r*.15}" rx="${r}" ry="${r*1.05}" fill="${c.b}" stroke="${c.s}" stroke-width="1.5"/>`;
+
+  // Ears
+  o += `<ellipse cx="${cx-r*.68}" cy="${cy-r*.55}" rx="${r*.25}" ry="${r*.42}" fill="${c.e}" stroke="${c.s}" stroke-width="1" transform="rotate(-15 ${cx-r*.68} ${cy-r*.55})"/>`;
+  o += `<ellipse cx="${cx+r*.68}" cy="${cy-r*.55}" rx="${r*.25}" ry="${r*.42}" fill="${c.e}" stroke="${c.s}" stroke-width="1" transform="rotate(15 ${cx+r*.68} ${cy-r*.55})"/>`;
+
+  // Face highlight (for non-white dogs)
+  if (ck !== 'white') {
+    o += `<ellipse cx="${cx}" cy="${cy+r*.05}" rx="${r*.65}" ry="${r*.7}" fill="#FFF8F3" opacity=".25"/>`;
+  }
+
+  // Eyes by expression
+  if (ex === 'happy') {
+    o += `<path d="M${cx-es-4} ${ey} Q${cx-es} ${ey-6} ${cx-es+4} ${ey}" stroke="${c.pp}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+    o += `<path d="M${cx+es-4} ${ey} Q${cx+es} ${ey-6} ${cx+es+4} ${ey}" stroke="${c.pp}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  } else if (ex === 'sleepy') {
+    o += `<line x1="${cx-es-4}" y1="${ey}" x2="${cx-es+4}" y2="${ey}" stroke="${c.pp}" stroke-width="2.5" stroke-linecap="round"/>`;
+    o += `<line x1="${cx+es-4}" y1="${ey}" x2="${cx+es+4}" y2="${ey}" stroke="${c.pp}" stroke-width="2.5" stroke-linecap="round"/>`;
+    o += `<text x="${cx+r*.75}" y="${cy-r*.55}" font-size="9" fill="${c.pp}" opacity=".4" font-weight="bold">z</text>`;
+    o += `<text x="${cx+r*.88}" y="${cy-r*.73}" font-size="7" fill="${c.pp}" opacity=".3" font-weight="bold">z</text>`;
+  } else if (ex === 'derp') {
+    o += `<circle cx="${cx-es}" cy="${ey}" r="5" fill="#fff" stroke="${c.pp}" stroke-width="1.5"/>`;
+    o += `<circle cx="${cx-es+2}" cy="${ey+1}" r="2.5" fill="${c.pp}"/>`;
+    o += `<circle cx="${cx+es}" cy="${ey}" r="5" fill="#fff" stroke="${c.pp}" stroke-width="1.5"/>`;
+    o += `<circle cx="${cx+es-1}" cy="${ey-1}" r="2.5" fill="${c.pp}"/>`;
+  } else if (ex === 'cool') {
+    o += `<rect x="${cx-es-7}" y="${ey-5}" width="14" height="9" rx="2" fill="#222"/>`;
+    o += `<rect x="${cx+es-7}" y="${ey-5}" width="14" height="9" rx="2" fill="#222"/>`;
+    o += `<line x1="${cx-es+7}" y1="${ey}" x2="${cx+es-7}" y2="${ey}" stroke="#222" stroke-width="1.5"/>`;
+  } else if (ex === 'love') {
+    [cx-es, cx+es].forEach(px => {
+      o += `<path d="M${px} ${ey+3} C${px-5} ${ey-4} ${px-5} ${ey-4} ${px} ${ey-1} C${px+5} ${ey-4} ${px+5} ${ey-4} ${px} ${ey+3}Z" fill="#FF6B9D"/>`;
+    });
+  } else if (ex === 'angry') {
+    o += `<circle cx="${cx-es}" cy="${ey}" r="3" fill="${c.pp}"/>`;
+    o += `<circle cx="${cx+es}" cy="${ey}" r="3" fill="${c.pp}"/>`;
+    o += `<line x1="${cx-es-5}" y1="${ey-6}" x2="${cx-es+3}" y2="${ey-3}" stroke="${c.pp}" stroke-width="2" stroke-linecap="round"/>`;
+    o += `<line x1="${cx+es+5}" y1="${ey-6}" x2="${cx+es-3}" y2="${ey-3}" stroke="${c.pp}" stroke-width="2" stroke-linecap="round"/>`;
+  } else if (ex === 'sparkle') {
+    [cx-es, cx+es].forEach(px => {
+      let pts = [];
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI/2 + i * Math.PI/5;
+        const rr = i % 2 === 0 ? 5 : 2.5;
+        pts.push((px + rr * Math.cos(a)).toFixed(1) + ',' + (ey + rr * Math.sin(a)).toFixed(1));
+      }
+      o += `<polygon points="${pts.join(' ')}" fill="${c.pp}"/>`;
+    });
+  } else {
+    // Default round eyes
+    o += `<circle cx="${cx-es}" cy="${ey}" r="3.5" fill="${c.pp}"/>`;
+    o += `<ellipse cx="${cx-es+1}" cy="${ey-1}" rx="1.2" ry="1.2" fill="#fff"/>`;
+    o += `<circle cx="${cx+es}" cy="${ey}" r="3.5" fill="${c.pp}"/>`;
+    o += `<ellipse cx="${cx+es+1}" cy="${ey-1}" rx="1.2" ry="1.2" fill="#fff"/>`;
+  }
+
+  // Cheeks
+  o += `<ellipse cx="${cx-r*.48}" cy="${cy+r*.1}" rx="5" ry="3.5" fill="${c.ck}" opacity=".4"/>`;
+  o += `<ellipse cx="${cx+r*.48}" cy="${cy+r*.1}" rx="5" ry="3.5" fill="${c.ck}" opacity=".4"/>`;
+
+  // Nose
+  const ny = cy + r * 0.15;
+  o += `<ellipse cx="${cx}" cy="${ny}" rx="4.5" ry="3.5" fill="${c.n}"/>`;
+  o += `<ellipse cx="${cx+1}" cy="${ny-1}" rx="1" ry=".7" fill="#fff" opacity=".3"/>`;
+
+  // Mouth
+  const my = ny + 5;
+  if (ex === 'happy' || ex === 'love' || ex === 'derp') {
+    o += `<path d="M${cx-5} ${my} Q${cx} ${my+7} ${cx+5} ${my}" stroke="${c.n}" stroke-width="1.2" fill="none"/>`;
+    o += `<ellipse cx="${cx}" cy="${my+5}" rx="3.5" ry="4" fill="${c.t}"/>`;
+  } else if (ex === 'angry') {
+    o += `<path d="M${cx-5} ${my+2} Q${cx} ${my-2} ${cx+5} ${my+2}" stroke="${c.n}" stroke-width="1.5" fill="none"/>`;
+  } else {
+    o += `<path d="M${cx-5} ${my} L${cx} ${my+3} L${cx+5} ${my}" stroke="${c.n}" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+
+  // Paws
+  const pw = cy + r * 0.85;
+  [cx - r * 0.32, cx + r * 0.32].forEach(px => {
+    o += `<ellipse cx="${px}" cy="${pw}" rx="7" ry="5" fill="${c.p}" opacity=".75"/>`;
+    o += `<circle cx="${px-2}" cy="${pw-1}" r="1.3" fill="${c.ck}" opacity=".35"/>`;
+    o += `<circle cx="${px+2}" cy="${pw-1}" r="1.3" fill="${c.ck}" opacity=".35"/>`;
+  });
+
+  // Accessories
+  if (ac) ac.forEach(a => {
+    if (a === 'crown') {
+      o += `<polygon points="${cx-9},${cy-r*.92} ${cx-5},${cy-r*1.1} ${cx},${cy-r*.92} ${cx+5},${cy-r*1.15} ${cx+9},${cy-r*.92} ${cx+9},${cy-r*.82} ${cx-9},${cy-r*.82}" fill="#FFD700" stroke="#DAA520" stroke-width=".8"/>`;
+    }
+    if (a === 'bowtie') {
+      o += `<polygon points="${cx},${cy+r*.35} ${cx-9},${cy+r*.27} ${cx},${cy+r*.31} ${cx+9},${cy+r*.27}" fill="#FF6B9D"/>`;
+      o += `<circle cx="${cx}" cy="${cy+r*.31}" r="2" fill="#FF4081"/>`;
+    }
+    if (a === 'hat') {
+      o += `<rect x="${cx-13}" y="${cy-r*1.0}" width="26" height="3.5" rx="1.5" fill="#333"/>`;
+      o += `<rect x="${cx-8}" y="${cy-r*1.22}" width="16" height="12" rx="2.5" fill="#333"/>`;
+    }
+    if (a === 'scarf') {
+      o += `<path d="M${cx-r*.55} ${cy+r*.25} Q${cx} ${cy+r*.4} ${cx+r*.55} ${cy+r*.25}" stroke="#E74C3C" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+      o += `<line x1="${cx+r*.28}" y1="${cy+r*.33}" x2="${cx+r*.23}" y2="${cy+r*.6}" stroke="#E74C3C" stroke-width="3.5" stroke-linecap="round"/>`;
+    }
+    if (a === 'flower') {
+      const fx = cx + r * 0.65, fy = cy - r * 0.5;
+      for (let i = 0; i < 5; i++) {
+        const a2 = i * 72 * Math.PI / 180;
+        o += `<circle cx="${fx + 4.5*Math.cos(a2)}" cy="${fy + 4.5*Math.sin(a2)}" r="3" fill="#FFB6C1" opacity=".8"/>`;
+      }
+      o += `<circle cx="${fx}" cy="${fy}" r="2" fill="#FFD700"/>`;
+    }
+    if (a === 'bandana') {
+      o += `<path d="M${cx-r*.5} ${cy+r*.1} L${cx} ${cy+r*.38} L${cx+r*.5} ${cy+r*.1}" fill="#4A90D9" opacity=".6"/>`;
+    }
+    if (a === 'glasses') {
+      o += `<circle cx="${cx-es}" cy="${ey}" r="7" fill="none" stroke="#8B4513" stroke-width="1.2"/>`;
+      o += `<circle cx="${cx+es}" cy="${ey}" r="7" fill="none" stroke="#8B4513" stroke-width="1.2"/>`;
+      o += `<line x1="${cx-es+7}" y1="${ey}" x2="${cx+es-7}" y2="${ey}" stroke="#8B4513" stroke-width="1"/>`;
+    }
+    if (a === 'cape') {
+      o += `<path d="M${cx-r*.35} ${cy-r*.15} Q${cx-r} ${cy+r*.5} ${cx-r*.5} ${cy+r} L${cx+r*.5} ${cy+r} Q${cx+r} ${cy+r*.5} ${cx+r*.35} ${cy-r*.15}" fill="#9B59B6" opacity=".2"/>`;
+    }
+    if (a === 'detective') {
+      o += `<ellipse cx="${cx}" cy="${cy-r*.95}" rx="${r*.55}" ry="${r*.18}" fill="#8B6914"/>`;
+      o += `<ellipse cx="${cx}" cy="${cy-r*1.05}" rx="${r*.35}" ry="${r*.22}" fill="#A0781E"/>`;
+      o += `<ellipse cx="${cx}" cy="${cy-r*.95}" rx="${r*.55}" ry="${r*.06}" fill="#6B5210"/>`;
+    }
+  });
+
+  o += '</svg>';
+  return o;
+}
+
+// === Canvas Dog Drawing (for share screenshot) ===
+function drawDogCvs(x, ck, ex, ac, sz, ox, oy) {
+  ox = ox || 0; oy = oy || 0;
+  sz = sz || 200;
+  const c = CC[ck] || CC.white;
+  const cx = ox + sz/2, cy = oy + sz/2, r = sz * 0.32;
+  const ey = cy - r * 0.12, es = r * 0.33;
+
+  // Helper: draw ellipse
+  function ell(ex2,ey2,rx,ry,fill,stroke,sw,op) {
+    x.save();
+    if (op) x.globalAlpha = op;
+    x.beginPath(); x.ellipse(ex2,ey2,rx,ry,0,0,Math.PI*2);
+    if (fill) { x.fillStyle = fill; x.fill(); }
+    if (stroke) { x.strokeStyle = stroke; x.lineWidth = sw||1; x.stroke(); }
+    x.restore();
+  }
+  // Helper: rotated ellipse
+  function ellR(ex2,ey2,rx,ry,rot,fill,stroke,sw) {
+    x.save(); x.translate(ex2,ey2); x.rotate(rot*Math.PI/180);
+    x.beginPath(); x.ellipse(0,0,rx,ry,0,0,Math.PI*2);
+    if (fill) { x.fillStyle = fill; x.fill(); }
+    if (stroke) { x.strokeStyle = stroke; x.lineWidth = sw||1; x.stroke(); }
+    x.restore();
+  }
+
+  // Tail
+  x.beginPath();
+  x.moveTo(cx+r*.6, cy+r*.5);
+  x.quadraticCurveTo(cx+r*1.3, cy-r*.1, cx+r*1.1, cy-r*.5);
+  x.strokeStyle = c.s; x.lineWidth = 3.5; x.lineCap = 'round'; x.stroke();
+
+  // Body
+  ell(cx, cy+r*.15, r, r*1.05, c.b, c.s, 1.5);
+
+  // Ears
+  ellR(cx-r*.68, cy-r*.55, r*.25, r*.42, -15, c.e, c.s, 1);
+  ellR(cx+r*.68, cy-r*.55, r*.25, r*.42, 15, c.e, c.s, 1);
+
+  // Face highlight
+  if (ck !== 'white') {
+    ell(cx, cy+r*.05, r*.65, r*.7, '#FFF8F3', null, 0, 0.25);
+  }
+
+  // Eyes
+  x.lineCap = 'round';
+  if (ex === 'happy') {
+    // Happy arcs
+    [cx-es, cx+es].forEach(px => {
+      x.beginPath();
+      x.moveTo(px-4, ey);
+      x.quadraticCurveTo(px, ey-6, px+4, ey);
+      x.strokeStyle = c.pp; x.lineWidth = 2.5; x.stroke();
+    });
+  } else if (ex === 'sleepy') {
+    [cx-es, cx+es].forEach(px => {
+      x.beginPath(); x.moveTo(px-4, ey); x.lineTo(px+4, ey);
+      x.strokeStyle = c.pp; x.lineWidth = 2.5; x.stroke();
+    });
+    x.save(); x.globalAlpha = 0.4; x.fillStyle = c.pp;
+    x.font = 'bold ' + (sz*0.056) + 'px sans-serif';
+    x.fillText('z', cx+r*.75, cy-r*.55);
+    x.globalAlpha = 0.3;
+    x.font = 'bold ' + (sz*0.044) + 'px sans-serif';
+    x.fillText('z', cx+r*.88, cy-r*.73);
+    x.restore();
+  } else if (ex === 'derp') {
+    [cx-es, cx+es].forEach((px, i) => {
+      ell(px, ey, 5, 5, '#fff', c.pp, 1.5);
+      x.beginPath(); x.arc(px + (i===0?2:-1), ey + (i===0?1:-1), 2.5, 0, Math.PI*2);
+      x.fillStyle = c.pp; x.fill();
+    });
+  } else if (ex === 'cool') {
+    // Sunglasses
+    x.fillStyle = '#222';
+    x.fillRect(cx-es-7, ey-5, 14, 9);
+    x.fillRect(cx+es-7, ey-5, 14, 9);
+    x.beginPath(); x.moveTo(cx-es+7, ey); x.lineTo(cx+es-7, ey);
+    x.strokeStyle = '#222'; x.lineWidth = 1.5; x.stroke();
+  } else if (ex === 'love') {
+    [cx-es, cx+es].forEach(px => {
+      x.fillStyle = '#FF6B9D';
+      x.beginPath();
+      x.moveTo(px, ey+3);
+      x.bezierCurveTo(px-5, ey-4, px-5, ey-4, px, ey-1);
+      x.bezierCurveTo(px+5, ey-4, px+5, ey-4, px, ey+3);
+      x.fill();
+    });
+  } else if (ex === 'angry') {
+    [cx-es, cx+es].forEach(px => {
+      x.beginPath(); x.arc(px, ey, 3, 0, Math.PI*2);
+      x.fillStyle = c.pp; x.fill();
+    });
+    // Angry brows
+    x.strokeStyle = c.pp; x.lineWidth = 2; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(cx-es-5, ey-6); x.lineTo(cx-es+3, ey-3); x.stroke();
+    x.beginPath(); x.moveTo(cx+es+5, ey-6); x.lineTo(cx+es-3, ey-3); x.stroke();
+  } else if (ex === 'sparkle') {
+    [cx-es, cx+es].forEach(px => {
+      x.fillStyle = c.pp; x.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI/2 + i * Math.PI/5;
+        const rr = i % 2 === 0 ? 5 : 2.5;
+        const px2 = px + rr * Math.cos(a), py2 = ey + rr * Math.sin(a);
+        i === 0 ? x.moveTo(px2, py2) : x.lineTo(px2, py2);
+      }
+      x.closePath(); x.fill();
+    });
+  } else {
+    // Default round eyes
+    [cx-es, cx+es].forEach(px => {
+      x.beginPath(); x.arc(px, ey, 3.5, 0, Math.PI*2);
+      x.fillStyle = c.pp; x.fill();
+      x.beginPath(); x.arc(px+1, ey-1, 1.2, 0, Math.PI*2);
+      x.fillStyle = '#fff'; x.fill();
+    });
+  }
+
+  // Cheeks
+  ell(cx-r*.48, cy+r*.1, 5, 3.5, c.ck, null, 0, 0.4);
+  ell(cx+r*.48, cy+r*.1, 5, 3.5, c.ck, null, 0, 0.4);
+
+  // Nose
+  const ny = cy + r * 0.15;
+  ell(cx, ny, 4.5, 3.5, c.n);
+  ell(cx+1, ny-1, 1, 0.7, '#fff', null, 0, 0.3);
+
+  // Mouth
+  const my = ny + 5;
+  if (ex === 'happy' || ex === 'love' || ex === 'derp') {
+    x.beginPath(); x.moveTo(cx-5, my); x.quadraticCurveTo(cx, my+7, cx+5, my);
+    x.strokeStyle = c.n; x.lineWidth = 1.2; x.stroke();
+    ell(cx, my+5, 3.5, 4, c.t);
+  } else if (ex === 'angry') {
+    x.beginPath(); x.moveTo(cx-5, my+2); x.quadraticCurveTo(cx, my-2, cx+5, my+2);
+    x.strokeStyle = c.n; x.lineWidth = 1.5; x.stroke();
+  } else {
+    x.beginPath(); x.moveTo(cx-5, my); x.lineTo(cx, my+3); x.lineTo(cx+5, my);
+    x.strokeStyle = c.n; x.lineWidth = 1.3; x.lineCap = 'round'; x.lineJoin = 'round'; x.stroke();
+  }
+
+  // Paws
+  const pw = cy + r * 0.85;
+  [cx - r * 0.32, cx + r * 0.32].forEach(px => {
+    ell(px, pw, 7, 5, c.p, null, 0, 0.75);
+    x.save(); x.globalAlpha = 0.35;
+    x.beginPath(); x.arc(px-2, pw-1, 1.3, 0, Math.PI*2); x.fillStyle = c.ck; x.fill();
+    x.beginPath(); x.arc(px+2, pw-1, 1.3, 0, Math.PI*2); x.fill();
+    x.restore();
+  });
+
+  // Accessories
+  if (ac) ac.forEach(a => {
+    if (a === 'crown') {
+      x.fillStyle = '#FFD700'; x.strokeStyle = '#DAA520'; x.lineWidth = 0.8;
+      x.beginPath();
+      x.moveTo(cx-9, cy-r*.92); x.lineTo(cx-5, cy-r*1.1); x.lineTo(cx, cy-r*.92);
+      x.lineTo(cx+5, cy-r*1.15); x.lineTo(cx+9, cy-r*.92);
+      x.lineTo(cx+9, cy-r*.82); x.lineTo(cx-9, cy-r*.82); x.closePath();
+      x.fill(); x.stroke();
+    }
+    if (a === 'bowtie') {
+      x.fillStyle = '#FF6B9D'; x.beginPath();
+      x.moveTo(cx, cy+r*.35); x.lineTo(cx-9, cy+r*.27);
+      x.lineTo(cx, cy+r*.31); x.lineTo(cx+9, cy+r*.27); x.closePath(); x.fill();
+      x.beginPath(); x.arc(cx, cy+r*.31, 2, 0, Math.PI*2);
+      x.fillStyle = '#FF4081'; x.fill();
+    }
+    if (a === 'hat') {
+      x.fillStyle = '#333';
+      x.fillRect(cx-13, cy-r*1.0, 26, 3.5);
+      x.fillRect(cx-8, cy-r*1.22, 16, 12);
+    }
+    if (a === 'scarf') {
+      x.beginPath();
+      x.moveTo(cx-r*.55, cy+r*.25);
+      x.quadraticCurveTo(cx, cy+r*.4, cx+r*.55, cy+r*.25);
+      x.strokeStyle = '#E74C3C'; x.lineWidth = 4.5; x.lineCap = 'round'; x.stroke();
+      x.beginPath(); x.moveTo(cx+r*.28, cy+r*.33); x.lineTo(cx+r*.23, cy+r*.6);
+      x.strokeStyle = '#E74C3C'; x.lineWidth = 3.5; x.lineCap = 'round'; x.stroke();
+    }
+    if (a === 'flower') {
+      const fx = cx + r * 0.65, fy = cy - r * 0.5;
+      x.save(); x.globalAlpha = 0.8;
+      for (let i = 0; i < 5; i++) {
+        const a2 = i * 72 * Math.PI / 180;
+        x.beginPath(); x.arc(fx + 4.5*Math.cos(a2), fy + 4.5*Math.sin(a2), 3, 0, Math.PI*2);
+        x.fillStyle = '#FFB6C1'; x.fill();
+      }
+      x.restore();
+      x.beginPath(); x.arc(fx, fy, 2, 0, Math.PI*2);
+      x.fillStyle = '#FFD700'; x.fill();
+    }
+    if (a === 'bandana') {
+      x.save(); x.globalAlpha = 0.6; x.fillStyle = '#4A90D9';
+      x.beginPath();
+      x.moveTo(cx-r*.5, cy+r*.1); x.lineTo(cx, cy+r*.38); x.lineTo(cx+r*.5, cy+r*.1);
+      x.closePath(); x.fill(); x.restore();
+    }
+    if (a === 'glasses') {
+      x.strokeStyle = '#8B4513'; x.lineWidth = 1.2;
+      x.beginPath(); x.arc(cx-es, ey, 7, 0, Math.PI*2); x.stroke();
+      x.beginPath(); x.arc(cx+es, ey, 7, 0, Math.PI*2); x.stroke();
+      x.beginPath(); x.moveTo(cx-es+7, ey); x.lineTo(cx+es-7, ey);
+      x.lineWidth = 1; x.stroke();
+    }
+    if (a === 'cape') {
+      x.save(); x.globalAlpha = 0.2; x.fillStyle = '#9B59B6';
+      x.beginPath();
+      x.moveTo(cx-r*.35, cy-r*.15);
+      x.quadraticCurveTo(cx-r, cy+r*.5, cx-r*.5, cy+r);
+      x.lineTo(cx+r*.5, cy+r);
+      x.quadraticCurveTo(cx+r, cy+r*.5, cx+r*.35, cy-r*.15);
+      x.closePath(); x.fill(); x.restore();
+    }
+    if (a === 'detective') {
+      ell(cx, cy-r*.95, r*.55, r*.18, '#8B6914');
+      ell(cx, cy-r*1.05, r*.35, r*.22, '#A0781E');
+      ell(cx, cy-r*.95, r*.55, r*.06, '#6B5210');
+    }
+  });
+}
+
+// 16 DOG TYPES
+const D={
+SCTH:{nm:'狗仗人势金毛侠',cl:'golden',ex:'happy',ac:['scarf'],ds:'仗着主人在身后，见谁都冲上去嘚瑟。拆完你家还舔你一脸，你骂它它更开心。',qt:'"我不是社牛，我是社会我狗哥。"',st:{s:95,d:80,c:90,i:40,b:60},be:'DBTH',wo:'DBGX',ra:8.2},
+SCTX:{nm:'鸡飞狗跳卷王犬',cl:'brown',ex:'sparkle',ac:['glasses'],ds:'不仅自己卷还要拉着全窝一起鸡飞狗跳。叼骨头都要跑出最优路线，狗界内卷发起人。',qt:'"你以为我在玩？我在做骨头KPI分析。"',st:{s:75,d:60,c:70,i:98,b:80},be:'DCTX',wo:'SBTH',ra:5.1},
+SCGH:{nm:'人来疯哈士奇',cl:'husky',ex:'derp',ac:['bandana'],ds:'来人了？拆家！来客了？拆得更起劲！被骂完还冲你傻笑，你气得想笑。',qt:'"沙发是什么？我只看到一坨可以解构的棉花。"',st:{s:70,d:100,c:30,i:25,b:75},be:'SCTH',wo:'DBTX',ra:9.5},
+SCGX:{nm:'狗眼看人低杜宾',cl:'black',ex:'cool',ac:['hat'],ds:'精准拆掉你最贵的鞋，然后面无表情看你崩溃。眼神里写满了四个字：不过如此。',qt:'"这叫解构主义，你不配懂。"',st:{s:50,d:95,c:10,i:92,b:90},be:'DCGX',wo:'SBTH',ra:3.7},
+SBTH:{nm:'低眉顺眼舔狗精',cl:'cream',ex:'love',ac:['bowtie'],ds:'你去厕所它跟着，你睡觉它趴你脸上。全世界最卑微的存在，但舔得你心甘情愿。',qt:'"你的腿就是我的全世界，求求你别动。"',st:{s:85,d:5,c:100,i:35,b:10},be:'DCTH',wo:'SCGX',ra:11.3},
+SBTX:{nm:'摇尾乞怜算计狗',cl:'cream',ex:'sparkle',ac:[],ds:'表面摇尾巴实则在算你兜里几块饼干。每一次撒娇都是精心计算的投资回报。',qt:'"我对你的爱，和你口袋里的零食成正比。"',st:{s:80,d:15,c:65,i:95,b:30},be:'SCTX',wo:'SCGH',ra:4.8},
+SBGH:{nm:'人前显贵人后废萨摩',cl:'white',ex:'sleepy',ac:['flower'],ds:'出门笑成天使，回家瘫成咸鱼。i狗装e狗的影帝，社交电量最多撑两小时。',qt:'"今天的社交额度已用完，请明天再来。"',st:{s:60,d:10,c:20,i:70,b:15},be:'DBGH',wo:'SCTH',ra:7.6},
+SBGX:{nm:'目中无人贵妇犬',cl:'white',ex:'cool',ac:['crown'],ds:'浑身散发"我很贵你别碰"的气场。啥都不干但自带BGM，连打哈欠都是优雅的。',qt:'"本汪不是懒，是矜持。"',st:{s:40,d:5,c:5,i:85,b:20},be:'DBTX',wo:'SCGH',ra:2.9},
+DCTH:{nm:'窝里横柯基霸王',cl:'orange',ex:'happy',ac:['bowtie'],ds:'出门腿短跑不快怂得一批，回家秒变小霸王。只在主人面前横，出去秒怂。',qt:'"外面好可怕，但你怀里我最横。"',st:{s:20,d:30,c:95,i:50,b:25},be:'SBTH',wo:'SCTH',ra:8.8},
+DCTX:{nm:'狗头军师灰柴犬',cl:'gray',ex:'sparkle',ac:['detective'],ds:'安安静静像个老实狗，其实在策划怎么偷鸡腿。你藏的零食在哪，它比你清楚。',qt:'"你以为你藏好了？天真。"',st:{s:25,d:40,c:50,i:96,b:55},be:'SCTX',wo:'SCGH',ra:4.2},
+DCGH:{nm:'六亲不认拆家王',cl:'brown',ex:'angry',ac:[],ds:'不要朋友不要表扬，只要给东西拆。一匹狗的战争，拆完沙发拆墙角，沉默而疯狂。',qt:'"别跟我说话，我在搞基建。"',st:{s:10,d:98,c:5,i:60,b:85},be:'SCGX',wo:'SBTH',ra:3.1},
+DCGX:{nm:'偷鸡摸狗暗影犬',cl:'black',ex:'cool',ac:['cape'],ds:'无声无息偷走你的袜子，你发现时它已经把证据埋了。地下世界的教父，四条腿的。',qt:'"你永远不知道你的袜子去了哪。"',st:{s:15,d:70,c:8,i:99,b:88},be:'SCGX',wo:'SCTH',ra:2.4},
+DBTH:{nm:'好吃懒做肥柴犬',cl:'cream',ex:'sleepy',ac:[],ds:'吃了睡睡了吃，唯一运动是翻身。但那双水汪汪的眼睛一看你，你就自愿伺候它。',qt:'"躺平不丢狗，反正有人喂。"',st:{s:50,d:3,c:80,i:20,b:5},be:'SCTH',wo:'SCTX',ra:12.5},
+DBTX:{nm:'看破红尘老巴哥',cl:'gray',ex:'sleepy',ac:['glasses'],ds:'看透一切选择躺平，偶尔发出充满哲学的叹息。满脸褶子里藏着人生的智慧。',qt:'"人生苦短，不如躺着想想宇宙。"',st:{s:30,d:8,c:15,i:90,b:10},be:'SBGX',wo:'SCGH',ra:3.5},
+DBGH:{nm:'爱答不理冰山哈',cl:'husky',ex:'cool',ac:[],ds:'叫它不回头，摸它翻白眼。跟这个世界没有关系，唯一能让它动的就是饭碗的声音。',qt:'"世界与我无关，除了饭点和零下二十度的雪地。"',st:{s:5,d:12,c:3,i:75,b:18},be:'SBGH',wo:'SBTH',ra:6.3},
+DBGX:{nm:'不动声色阴谋柯基',cl:'orange',ex:'default',ac:['detective'],ds:'看起来啥都不在乎，其实记住了你每一个动作。最安静最矮但最危险的那个。',qt:'"我什么都没做。但我什么都知道。"',st:{s:10,d:5,c:12,i:97,b:35},be:'DCTX',wo:'SCTH',ra:2.1}
+};
+
+// QUESTIONS
+const Q=[
+{scene:'🏯 你在汴京城闲逛，迎面走来一个江湖侠客...',text:'你会怎么做？',opts:[
+{t:'冲上去摇尾巴蹭他腿，管他是敌是友！',sc:{S:2}},
+{t:'远远看一眼，假装在闻路边的烧鸡摊',sc:{D:2}},
+{t:'小心翼翼靠近，先闻闻他身上有没有肉包子味',sc:{D:1,T:1}},
+{t:'昂首挺胸走过去，本汪可是血河门下的！',sc:{S:1,G:1}}
+]},
+{scene:'🦴 主人打完副本掉了一根紫色骨头装备！',text:'你的第一反应是？',opts:[
+{t:'高兴得转圈圈，然后忘了骨头掉哪了',sc:{H:2}},
+{t:'立刻叼走存仓库，还要加三层密码锁',sc:{X:2}},
+{t:'叼给主人求表扬：看！我捡到宝贝了！',sc:{T:2}},
+{t:'淡定看一眼，不是橙装不感兴趣',sc:{G:2}}
+]},
+{scene:'🌧️ 庄园里突然下起了大雨...',text:'你怎么办？',opts:[
+{t:'冲进雨里踩水坑！在庄园池塘打滚！',sc:{C:2}},
+{t:'钻进庄园暖炉旁边蜷起来继续睡觉',sc:{B:2}},
+{t:'叼把油纸伞给主人，自己默默淋着',sc:{T:1,X:1}},
+{t:'在屋檐下优雅赏雨，配合BGM演文艺狗',sc:{G:1,D:1}}
+]},
+{scene:'⚔️ 帮会战开打了！对面冲过来一群敌人...',text:'你的反应？',opts:[
+{t:'叫回去！谁怕谁！嗓门比它大就是赢！',sc:{S:1,C:1}},
+{t:'翻个白眼，打不过就跑，智者不战',sc:{G:2}},
+{t:'吓得躲到主人背后瑟瑟发抖',sc:{D:1,T:1}},
+{t:'傻乐着跑过去以为在跟你玩，结果被一刀秒了',sc:{H:2}}
+]},
+{scene:'🏠 主人下线了，你独自守在庄园...',text:'接下来你会？',opts:[
+{t:'拆家具拆花瓶！把庄园重新"装修"一遍',sc:{C:2}},
+{t:'趴在大门口一整天等主人上线',sc:{T:2}},
+{t:'终于可以霸占主人的红木大床了！',sc:{B:2}},
+{t:'研究怎么打开庄园大门，自己出去逛汴京',sc:{X:2}}
+]},
+{scene:'🐱 老君观的一只仙鹤落在你面前！',text:'你怎么处理？',opts:[
+{t:'追！必须追！狗追鹤天经地义！',sc:{C:1,S:1}},
+{t:'鹤是什么？跟我有关系吗？继续躺',sc:{B:2}},
+{t:'假装没看见，维持血河门下的体面',sc:{G:2}},
+{t:'跑过去闻，结果被仙鹤一翅膀扇飞了',sc:{H:2}}
+]},
+{scene:'😢 主人被暗刀偷袭，气得要摔键盘...',text:'你会怎么做？',opts:[
+{t:'立刻把头拱到主人怀里使劲蹭，发出哼哼声',sc:{T:2}},
+{t:'默默坐在旁边陪着，用眼神说"我懂"',sc:{D:1,G:1}},
+{t:'叼来一瓶游戏里的回血药，虽然没用但心意到了',sc:{X:1,T:1}},
+{t:'跟着一起对着屏幕狂叫，帮主人出气！',sc:{H:1,S:1}}
+]},
+{scene:'🎁 神秘商人出现，你可以许一个愿望...',text:'你最想要什么？',opts:[
+{t:'无限狗粮！吃遍汴京所有小吃摊！',sc:{H:1,B:1}},
+{t:'一匹最快的马！跑遍整个地图！',sc:{C:1,S:1}},
+{t:'主人永远在线，永远陪着我就够了',sc:{T:2}},
+{t:'一个隐藏的秘密洞穴，只有我知道在哪',sc:{D:1,G:1}}
+]},
+{scene:'💃 汴京花灯节到了，满街灯笼和NPC跳舞！',text:'你参加吗？',opts:[
+{t:'冲到舞台中央跟NPC一起蹦迪！全场最闪亮的狗！',sc:{S:2}},
+{t:'在角落安静看烟花，偶尔感动到汪一声',sc:{D:1,T:1}},
+{t:'趁大家看花灯，偷偷去小吃摊叼走一整只烤鸡',sc:{X:1,C:1}},
+{t:'花灯有什么好看的？不如回庄园睡觉',sc:{B:2}}
+]},
+{scene:'🗡️ 主人在武林PK赛上遇到了老对手！',text:'你在旁边会？',opts:[
+{t:'疯狂摇尾巴加油，叫得比解说还大声',sc:{S:1,T:1}},
+{t:'偷偷去研究对手的出招套路，回来报告主人',sc:{X:2}},
+{t:'紧张得把自己的尾巴咬住，看都不敢看',sc:{D:1,H:1}},
+{t:'冷静分析局势，觉得主人赢面不大就提前溜了',sc:{G:2}}
+]},
+{scene:'🏘️ 庄园来了一群陌生狗子串门！',text:'你的地盘你怎么办？',opts:[
+{t:'热情迎接！带它们参观我的骨头收藏！',sc:{S:2}},
+{t:'一个一个闻过去，不合格的请出去',sc:{X:1,G:1}},
+{t:'跑去躲起来从窗户偷偷观察它们',sc:{D:2}},
+{t:'管它谁来的，反正它们走了我继续睡',sc:{B:2}}
+]},
+{scene:'🎭 逆水寒出了新时装，主人给你也买了一套狗狗皮肤！',text:'你的反应？',opts:[
+{t:'穿上就去汴京城走秀，让所有狗都看见！',sc:{S:1,G:1}},
+{t:'感动哭了，蹭了主人一脸口水表示感谢',sc:{T:2}},
+{t:'研究怎么把旧皮肤卖掉赚差价',sc:{X:2}},
+{t:'穿了五分钟嫌不舒服，叼下来继续裸奔',sc:{C:1,H:1}}
+]}
+];
+
+// === CONFIG ===
+const BLOB_ID = '019db5df-4a88-775e-aa53-21cf99e8e6cd';
+const API = 'https://jsonblob.com/api/jsonBlob/' + BLOB_ID;
+
+// === STATE ===
+let scores = {S:0,D:0,C:0,B:0,T:0,G:0,X:0,H:0};
+let curQ = 0;
+let nickname = '';
+
+// === NICKNAME ===
+const nickInput = document.getElementById('nickInput');
+const btnGo = document.getElementById('btnGo');
+// Restore saved nickname
+const saved = localStorage.getItem('dogti_nick');
+if (saved) { nickInput.value = saved; btnGo.disabled = false; }
+nickInput.addEventListener('input', () => {
+  const v = nickInput.value.trim();
+  btnGo.disabled = v.length === 0;
+});
+
+function go() {
+  nickname = nickInput.value.trim();
+  if (!nickname) { nickInput.focus(); return; }
+  localStorage.setItem('dogti_nick', nickname);
+  scores = {S:0,D:0,C:0,B:0,T:0,G:0,X:0,H:0};
+  curQ = 0;
+  show('pgQuiz');
+  renderQ();
+}
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQ() {
+  const q = Q[curQ];
+  document.getElementById('pf').style.width = ((curQ / Q.length) * 100) + '%';
+  document.getElementById('qn').textContent = `第 ${curQ + 1} / ${Q.length} 题`;
+  document.getElementById('qs').textContent = q.scene;
+  document.getElementById('qt').textContent = q.text;
+  const op = document.getElementById('op');
+  op.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = o.t;
+    btn.onclick = () => pick(i);
+    btn.style.opacity = '0';
+    btn.style.transform = 'translateY(12px)';
+    btn.style.transition = 'all 0.3s ease ' + (i * 0.08) + 's';
+    op.appendChild(btn);
+    requestAnimationFrame(() => {
+      btn.style.opacity = '1';
+      btn.style.transform = 'translateY(0)';
+    });
+  });
+}
+
+function pick(i) {
+  const sc = Q[curQ].opts[i].sc;
+  for (const k in sc) scores[k] += sc[k];
+  curQ++;
+  if (curQ >= Q.length) showResult();
+  else renderQ();
+}
+
+function getType() {
+  return (scores.S >= scores.D ? 'S' : 'D') +
+         (scores.C >= scores.B ? 'C' : 'B') +
+         (scores.T >= scores.G ? 'T' : 'G') +
+         (scores.X >= scores.H ? 'X' : 'H');
+}
+
+function showResult() {
+  const code = getType();
+  const dog = D[code];
+  if (!dog) { alert('出错啦，再来一次吧！'); go(); return; }
+
+  const sn = ['社交力','破坏力','粘人度','智  商','战斗力'];
+  const sk = ['s','d','c','i','b'];
+  const sc = ['#FF8A5C','#FF6B9D','#FFB6C1','#4A90D9','#9B59B6'];
+  const best = D[dog.be], worst = D[dog.wo];
+  const svgStr = dSVG(dog.cl, dog.ex, dog.ac, 150);
+
+  let h = `
+    <div class="r-tag">${nickname} 的狗格是</div>
+    <div class="r-dog">${svgStr}</div>
+    <div class="r-name">${dog.nm}</div>
+    <div class="r-code">${code}</div>
+    <div class="r-desc">${dog.ds}</div>
+    <div class="r-quote">${dog.qt}</div>
+    <div class="stats">`;
+  sk.forEach((k, i) => {
+    h += `<div class="st-r"><span class="st-l">${sn[i]}</span><div class="st-bar"><div class="st-f" style="width:0;background:${sc[i]}" data-w="${dog.st[k]}%"></div></div></div>`;
+  });
+  h += `</div><div class="rels">
+    <div class="rel"><div class="rel-lb">最佳狗友</div><div class="rel-em">🤝</div><div class="rel-nm">${best?best.nm:'???'}</div></div>
+    <div class="rel"><div class="rel-lb">最怕遇到</div><div class="rel-em">😱</div><div class="rel-nm">${worst?worst.nm:'???'}</div></div>
+  </div>`;
+  h += `<div class="r-rarity">全服 <b>${dog.ra}%</b> 的玩家和你一样</div>`;
+  h += `<div class="btn-g">
+    <button class="btn-a" onclick="go()">🔄 重新测试</button>
+    <button class="btn-b" onclick="doShare()">📸 截图分享</button>
+    <button class="btn-c" onclick="showRank()">📊 查看排行榜</button>
+  </div>`;
+
+  document.getElementById('rc').innerHTML = h;
+  show('pgResult');
+  setTimeout(() => {
+    document.querySelectorAll('.st-f').forEach(el => { el.style.width = el.dataset.w; });
+  }, 300);
+
+  // Submit result to cloud
+  submitResult(code);
+}
+
+// === CLOUD DATA ===
+function submitResult(code) {
+  fetch(API).then(r => r.json()).then(data => {
+    if (!data.results) data.results = [];
+    // Remove old entry from same nickname (keep latest)
+    data.results = data.results.filter(r => r.nick !== nickname);
+    data.results.push({
+      nick: nickname,
+      code: code,
+      name: D[code].nm,
+      time: new Date().toISOString()
+    });
+    // Keep last 200
+    if (data.results.length > 200) data.results = data.results.slice(-200);
+    return fetch(API, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  }).catch(() => {});
+}
+
+function showRank() {
+  show('pgRank');
+  document.getElementById('rankContent').innerHTML = '<div class="rank-loading">🐾 加载中...</div>';
+  fetch(API).then(r => r.json()).then(data => {
+    window._rankData = data.results || [];
+    // Default show list
+    document.querySelector('.rank-tab.active')?.classList.remove('active');
+    document.querySelectorAll('.rank-tab')[0].classList.add('active');
+    renderRankList();
+  }).catch(() => {
+    document.getElementById('rankContent').innerHTML = '<div class="rank-empty">加载失败，请稍后再试 😿</div>';
+  });
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.rank-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'list') renderRankList();
+  else renderRankStats();
+}
+
+function renderRankList() {
+  const results = window._rankData || [];
+  if (results.length === 0) {
+    document.getElementById('rankContent').innerHTML = '<div class="rank-empty">还没有人测试过，快成为第一个吧！🐶</div>';
+    return;
+  }
+  // Sort by time desc
+  const sorted = [...results].sort((a, b) => new Date(b.time) - new Date(a.time));
+  let h = '<div class="rank-list">';
+  sorted.forEach(r => {
+    const dog = D[r.code];
+    const svg = dog ? dSVG(dog.cl, dog.ex, dog.ac, 40) : '🐶';
+    const timeStr = formatTime(r.time);
+    h += `<div class="rank-item">
+      <div class="ri-dog">${svg}</div>
+      <div class="ri-info">
+        <div class="ri-nick">${escHtml(r.nick)}</div>
+        <div class="ri-type">${r.name || r.code}</div>
+      </div>
+      <div class="ri-time">${timeStr}</div>
+    </div>`;
+  });
+  h += '</div>';
+  document.getElementById('rankContent').innerHTML = h;
+}
+
+function renderRankStats() {
+  const results = window._rankData || [];
+  if (results.length === 0) {
+    document.getElementById('rankContent').innerHTML = '<div class="rank-empty">还没有数据 🐾</div>';
+    return;
+  }
+  // Count each type
+  const counts = {};
+  results.forEach(r => { counts[r.code] = (counts[r.code] || 0) + 1; });
+  const total = results.length;
+  // Sort by count desc
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  let h = '<div class="rank-stats">';
+  sorted.forEach(([code, cnt]) => {
+    const dog = D[code];
+    if (!dog) return;
+    const svg = dSVG(dog.cl, dog.ex, dog.ac, 36);
+    const pct = (cnt / total * 100).toFixed(1);
+    h += `<div class="rank-stat">
+      <div class="rs-dog">${svg}</div>
+      <div class="rs-name">${dog.nm}</div>
+      <div class="rs-count">${cnt}</div>
+      <div class="rs-pct">${pct}% 的人</div>
+    </div>`;
+  });
+  h += '</div>';
+  h += `<div style="text-align:center;font-size:12px;color:#8D6E63;margin-bottom:12px">共 ${total} 人参与测试 🐾</div>`;
+  document.getElementById('rankContent').innerHTML = h;
+}
+
+function formatTime(iso) {
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = (now - d) / 1000;
+    if (diff < 60) return '刚刚';
+    if (diff < 3600) return Math.floor(diff/60) + '分钟前';
+    if (diff < 86400) return Math.floor(diff/3600) + '小时前';
+    if (diff < 604800) return Math.floor(diff/86400) + '天前';
+    return (d.getMonth()+1) + '/' + d.getDate();
+  } catch(e) { return ''; }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// === SHARE (Canvas API) ===
+function doShare() {
+  const code = getType();
+  const dog = D[code];
+  if (!dog) return;
+  const btn = document.querySelector('.btn-b');
+  btn.textContent = '⏳ 生成中...'; btn.disabled = true;
+
+  const dpr = 2, W = 420, H = 740;
+  const cvs = document.createElement('canvas');
+  cvs.width = W*dpr; cvs.height = H*dpr;
+  const x = cvs.getContext('2d');
+  x.scale(dpr, dpr);
+
+  const bg = x.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#FFF8F0'); bg.addColorStop(1,'#FFE8D6');
+  x.fillStyle = bg; x.fillRect(0,0,W,H);
+
+  const tb = x.createLinearGradient(0,0,W,0);
+  tb.addColorStop(0,'#FF8A5C'); tb.addColorStop(1,'#FF6B9D');
+  x.fillStyle = tb; x.fillRect(0,0,W,5);
+
+  x.save(); x.shadowColor='rgba(255,138,92,0.13)'; x.shadowBlur=28; x.shadowOffsetY=8;
+  x.fillStyle='#fff'; x.beginPath(); x.roundRect(16,20,W-32,H-40,22); x.fill(); x.restore();
+
+  x.save(); x.beginPath(); x.roundRect(16,20,W-32,90,[22,22,0,0]); x.clip();
+  const tg = x.createLinearGradient(0,20,W,20);
+  tg.addColorStop(0,'rgba(255,138,92,0.09)'); tg.addColorStop(1,'rgba(255,107,157,0.09)');
+  x.fillStyle=tg; x.fillRect(16,20,W-32,90); x.restore();
+
+  x.fillStyle='#FF8A5C'; x.beginPath(); x.roundRect((W-160)/2,36,160,30,15); x.fill();
+  x.fillStyle='#fff'; x.font='bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.textAlign='center'; x.fillText(nickname+' 的狗格是', W/2, 56);
+
+  drawDogCvs(x, dog.cl, dog.ex, dog.ac, 160, (W-160)/2, 74);
+
+  let y = 252;
+  x.fillStyle='#5D4037'; x.font='bold 24px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.textAlign='center'; x.fillText(dog.nm, W/2, y); y+=24;
+  x.fillStyle='#8D6E63'; x.font='600 14px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.fillText(code, W/2, y); y+=24;
+
+  x.fillStyle='#5D4037'; x.font='13px "PingFang SC","Microsoft YaHei",sans-serif';
+  _wt(x, dog.ds, W-80).forEach(l => { x.fillText(l, W/2, y); y+=20; }); y+=8;
+
+  x.font='12px "PingFang SC","Microsoft YaHei",sans-serif';
+  const ql = _wt(x, dog.qt, W-100);
+  const qH = ql.length*18+16;
+  x.fillStyle='#FFF5F0'; x.beginPath(); x.roundRect(36,y-4,W-72,qH,8); x.fill();
+  x.fillStyle='#FF8A5C'; x.fillRect(36,y-4,3,qH); y+=10;
+  x.fillStyle='#FF8A5C'; x.font='12px "PingFang SC","Microsoft YaHei",sans-serif';
+  ql.forEach(l => { x.fillText(l, W/2, y); y+=18; }); y+=14;
+
+  const sn=['社交力','破坏力','粘人度','智  商','战斗力'];
+  const sk=['s','d','c','i','b'];
+  const sc=['#FF8A5C','#FF6B9D','#FFB6C1','#4A90D9','#9B59B6'];
+  x.textAlign='left';
+  sk.forEach((k,i) => {
+    x.fillStyle='#8D6E63'; x.font='11px "PingFang SC","Microsoft YaHei",sans-serif';
+    x.fillText(sn[i],40,y+3);
+    x.fillStyle='#F0E6DE'; x.beginPath(); x.roundRect(90,y-5,W-140,8,4); x.fill();
+    x.fillStyle=sc[i]; x.beginPath(); x.roundRect(90,y-5,Math.max(4,(W-140)*dog.st[k]/100),8,4); x.fill();
+    y+=20;
+  }); y+=10;
+
+  const best=D[dog.be], worst=D[dog.wo];
+  x.textAlign='center';
+  [{lb:'最佳狗友',em:'🤝',nm:best?best.nm:'???',bx:(W-334)/2},
+   {lb:'最怕遇到',em:'😱',nm:worst?worst.nm:'???',bx:(W-334)/2+174}].forEach(r => {
+    x.fillStyle='#FFF8F0'; x.beginPath(); x.roundRect(r.bx,y,160,50,10); x.fill();
+    x.fillStyle='#8D6E63'; x.font='10px "PingFang SC","Microsoft YaHei",sans-serif';
+    x.fillText(r.lb,r.bx+80,y+14); x.font='15px sans-serif'; x.fillText(r.em,r.bx+80,y+31);
+    x.fillStyle='#5D4037'; x.font='bold 12px "PingFang SC","Microsoft YaHei",sans-serif';
+    x.fillText(r.nm,r.bx+80,y+46);
+  }); y+=68;
+
+  x.fillStyle='#8D6E63'; x.font='12px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.fillText('全服 '+dog.ra+'% 的玩家和你一样', W/2, y); y+=26;
+  x.fillStyle='#BBAA99'; x.font='11px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.fillText('🐶 你是什么小狗？— 快来测测你的狗格吧～', W/2, y);
+
+  showShareImage(cvs.toDataURL('image/png'));
+  btn.textContent='📸 截图分享'; btn.disabled=false;
+}
+
+function _wt(ctx,text,maxW){const lines=[];let line='';for(let i=0;i<text.length;i++){const t=line+text[i];if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=text[i];}else line=t;}if(line)lines.push(line);return lines;}
+
+function showShareImage(dataUrl){const mask=document.createElement('div');mask.className='share-mask';const img=document.createElement('img');img.src=dataUrl;mask.appendChild(img);const tip=document.createElement('div');tip.className='share-tip';tip.innerHTML='📱 长按图片保存到相册<br>然后发给好友一起测试吧～ 🐶';mask.appendChild(tip);const close=document.createElement('button');close.className='share-close';close.textContent='✕ 关闭';close.onclick=()=>mask.remove();mask.appendChild(close);mask.onclick=(e)=>{if(e.target===mask)mask.remove();};document.body.appendChild(mask);}
+
+// === INIT ===
+document.getElementById('sDog').innerHTML = dSVG('white','happy',[],180);
+const pb = document.getElementById('pawBg');
+for(let i=0;i<12;i++){const sp=document.createElement('i');sp.textContent='🐾';sp.style.left=(Math.random()*100)+'%';sp.style.animationDelay=(Math.random()*18)+'s';sp.style.animationDuration=(15+Math.random()*10)+'s';sp.style.fontSize=(14+Math.random()*12)+'px';pb.appendChild(sp);}
+</script>
+</body>
+</html>
